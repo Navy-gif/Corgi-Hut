@@ -1,0 +1,21 @@
+{
+  "name": "corgi_hut",
+  "version": "0.0.1",
+  "description": "A bot for the corgi hut server",
+  "main": "index.js",
+  "author": "Navy.gif",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "common-tags": "^1.8.0",
+    "diagnostics": "^2.0.2",
+    "discord.js": "^12.5.1",
+    "eslint": "^7.14.0",
+    "moment": "^2.29.1",
+    "timestring": "^6.0.0",
+    "winston": "^3.3.3"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
