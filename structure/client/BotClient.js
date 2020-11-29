@@ -8,6 +8,7 @@ const RateLimiter = require('./RateLimiter.js');
 const Logger = require('../../logger');
 const EventHooker = require('./EventHooker.js');
 const Resolver = require('./Resolver.js');
+const { Reddit } = require('../../util');
 
 const { Client } = require('discord.js');
 
@@ -18,12 +19,12 @@ module.exports = class CorgiHutBot extends Client {
 
     constructor(options) {
 
-        super(options.clientOptions);
+        super(options.bot.clientOptions);
 
         /**Holds the config file
          * @private
          */
-        this._config = options;
+        this._config = options.bot;
 
         this.logger = new Logger(this, options.logging);
         this.registry = new Registry(this, path.join(process.cwd(), '/structure/client'));
@@ -31,6 +32,9 @@ module.exports = class CorgiHutBot extends Client {
         this.rateLimiter = new RateLimiter(this);
         this.eventHooker = new EventHooker(this);
         this.resolver = new Resolver(this);
+
+        //Reddit utility
+        this.reddit = new Reddit(this, options.reddit);
 
         this.ready = false;
 
@@ -55,6 +59,7 @@ module.exports = class CorgiHutBot extends Client {
         // await this.storage.init();
         this.emit('built');
         await super.login(this._config.token);
+        //await this.reddit.init();
 
     }
 
