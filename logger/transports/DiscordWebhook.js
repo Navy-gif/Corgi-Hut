@@ -1,7 +1,7 @@
 const Transport = require('winston-transport');
 const { WebhookClient } = require('discord.js');
 const { username } = require('os').userInfo();
-const { Discord } = require('../../config');
+const config = require('../../config');
 
 //eslint-disable-next-line no-control-regex
 const regex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/gu;
@@ -22,7 +22,7 @@ class DiscordWebhook extends Transport {
         });
 
         const message = info.message.replace(regex, '')
-            .replace(new RegExp(Discord.bot.token, 'gu'), '<redacted>')
+            .replace(new RegExp(config.bot.token, 'gu'), '<redacted>')
             .replace(new RegExp(username, 'gu'), '<redacted>');
 
         const developers = [
