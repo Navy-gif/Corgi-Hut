@@ -26,6 +26,7 @@ module.exports = class CommandHandler extends Listener {
 
         let { prefix } = this.client;
         let settings = null;
+        const inLower = content.toLowerCase();
         // if (guild && guild.ready) ({ prefix, _settings: settings } = guild);
         // else if (guild && !guild.ready) {
         //     await guild.fetchData();
@@ -35,7 +36,7 @@ module.exports = class CommandHandler extends Listener {
         if (settings && (settings.ignored.channels.includes(channel.id)
             || settings.ignored.users.includes(author.id))) return;
 
-        if (!content.startsWith(prefix)) return;
+        if (!inLower.startsWith(prefix)) return;
         const withoutPrefix = content.substring(prefix.length);
         const [commandName, ..._args] = withoutPrefix.split(' ');
         const command = this.client.registry.findCommand(commandName);
