@@ -12,10 +12,12 @@
     "discord.js": "^12.5.1",
     "eslint": "^7.14.0",
     "moment": "^2.29.1",
+    "snoowrap": "^1.21.0",
     "timestring": "^6.0.0",
     "winston": "^3.3.3"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "setup": "node setup.js"
   }
 }
