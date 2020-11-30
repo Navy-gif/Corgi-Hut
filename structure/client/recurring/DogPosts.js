@@ -71,8 +71,8 @@ module.exports = class DogPosts extends Recurring {
         //console.log(em)
         const send = { embed: em };
         if (['youtube.com', 'gfycat.com'].includes(result.domain)) {
-            send.content = result.url;
-            send.embed = null;
+            this.channel.send(result.url);
+            return;
         }
 
         const missing = this.channel.permissionsFor(this.client.guild.me).missing(['SEND_MESSAGES', 'EMBED_LINKS']);
