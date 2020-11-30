@@ -53,8 +53,11 @@ module.exports = class CorgiHutBot extends Client {
     async build() {
 
         this.logger.log('Building client');
-        this.registry.loadCommands();
-        this.registry.loadListeners();
+        this.registry.loadComponents('commands');
+        this.registry.loadComponents('recurring');
+        this.registry.loadComponents('listeners');
+        //this.registry.loadCommands();
+        //this.registry.loadListeners();
         this.eventHooker.init();
         // await this.storage.init();
         this.emit('built');
