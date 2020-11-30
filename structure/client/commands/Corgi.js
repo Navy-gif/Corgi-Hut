@@ -8,18 +8,37 @@ module.exports = class CorgiCommand extends Command {
     constructor(client) {
 
         super(client, {
-            name: 'corgi',
-            aliases: []
+            name: 'dog',
+            aliases: ['corgi', 'shibe', 'corg', 'shib', 'shiba']
         });
+
+        this.corgiSubs = ['corgi', 'babycorgis', 'corgigifs', 'babycorgis'];
+        this.shibeSubs = ['shiba'];
 
     }
 
     async run(message) {
 
         const { reddit } = this.client;
-        let result = null;
+        let result = null,
+            sub = null,
+            temp = null;
 
-        const subs = ['corgi', 'babycorgis', 'corgigifs', 'babycorgis'];
+        switch (message._caller) {
+            case 'corgi':
+            case 'corg':
+                sub = this.corgiSubs[Math.floor(Math.random() * (this.corgiSubs.length - 1))];
+                break;
+            case 'shibe':
+            case 'shib':
+            case 'shiba':
+                // eslint-disable-next-line prefer-destructuring
+                sub = this.shibeSubs[0]; //this.corgiSubs[Math.floor(Math.random() * (this.corgiSubs.length - 1))];
+                break;
+            default:
+                temp = [...this.shibeSubs, ...this.corgiSubs];
+                sub = temp[Math.floor(Math.random() * (temp.length - 1))];
+        }
         //const fails = [];
         
         try {
@@ -27,7 +46,7 @@ module.exports = class CorgiCommand extends Command {
             do {
                 //if (count > 0) fails.push(result);
                 count++;
-                result = await reddit.randomPost(subs[Math.floor(Math.random() * (subs.length - 1))]);
+                result = await reddit.randomPost(sub);
                 if (result.crosspost_parent_list) [result] = result.crosspost_parent_list;
                 //console.log(count);
             } while (!['image', 'rich:video', 'hosted:video'].includes(result.post_hint) && count < 5);
