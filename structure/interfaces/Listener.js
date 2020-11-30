@@ -1,9 +1,14 @@
-module.exports = class Listener {
+const Component = require("./Component.js");
+
+module.exports = class Listener extends Component {
 
     constructor(client, options) {
 
-        this.client = client;
-        this.name = options.name;
+        super(client, {
+            name: options.name,
+            type: 'listener'
+        });
+        
         this.priority = options.priority || 10;
 
     }

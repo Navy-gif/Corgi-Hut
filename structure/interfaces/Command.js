@@ -1,11 +1,15 @@
 const { stripIndents } = require('common-tags');
+const Component = require('./Component.js');
 
-module.exports = class Command {
+module.exports = class Command extends Component {
 
     constructor(client, options) {
 
-        this.client = client;
-        this.name = options.name;
+        super(client, {
+            name: options.name,
+            type: 'command'
+        });
+
         this.aliases = options.aliases || [];
         this.description = options.description || `Command ${this.name} is missing description`;
         this.usage = options.usage || `${this.client.prefix}${this.name}`;
