@@ -8,41 +8,64 @@ module.exports = class Registry {
 
         this.client = client;
         this.path = componentPath;
-        this.commands = new Collection();
-        this.listeners = new Collection();
+        this.components = new Collection();
 
     }
 
-    listener(key) {
-        if (this.listeners.has(key)) return this.listeners.get(key);
-        return false;
+    get listeners() {
+        return this.components.filter(comp => comp.type === 'listener');
+    }
+
+    get commands() {
+        return this.components.filter(comp => comp.type === 'command');
+    }
+
+    get recurring() {
+        return this.components.filter(comp => comp.type === 'recurring');
+    }
+
+    findRecurring(key) {
+        return this.findComponent(key, 'recurring');
     }
 
     findCommand(key) {
+        return this.findComponent(key, 'command');
+    }
 
-        key = key.toLowerCase();
-        if (this.commands.has(key)) return this.commands.get(key);
+    findListener(key) {
+        return this.findComponent(key, 'listener');
+    }
 
-        const command = this.commands.find((cmd) => cmd.aliases.includes(key));
-        if (command) return command;
+    findComponent(name, type, caseSensitive = false) {
 
+        if (!caseSensitive) {
+            name = name.toLowerCase();
+            type = type.toLowerCase();
+        }
+
+        const resolve = `${type}:${name}`;
+        if (this.components.has(resolve)) return this.components.get(resolve);
+
+        const component = this.components.find((comp) => comp.aliases?.includes(name));
+        if (component) return component;
         return null;
 
     }
 
-    loadComponents(folderName) {
+    async loadComponents(folderName) {
 
         this.client.logger.log(`Loading ${folderName}`);
-        const commandsPath = path.join(this.path, folderName);
-        const folder = fs.readdirSync(commandsPath);
+        const componentPath = path.join(this.path, folderName);
+        const folder = fs.readdirSync(componentPath);
 
         for (const file of folder) {
 
             this.client.logger.log(`\tLoading ${file}`);
-            const _path = path.join(commandsPath, file);
-            const _command = require(_path);
-            const command = new _command(this.client);
-            this.commands.set(command.name, command);
+            const _path = path.join(componentPath, file);
+            const _component = require(_path);
+            const component = new _component(this.client);
+            if (component.init) await component.init();
+            this.components.set(component.resolve, component);
 
         }
 

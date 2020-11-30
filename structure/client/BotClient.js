@@ -25,6 +25,7 @@ module.exports = class CorgiHutBot extends Client {
          * @private
          */
         this._config = options.bot;
+        this.settings = require('./../../settings.json');
 
         this.logger = new Logger(this, options.logging);
         this.registry = new Registry(this, path.join(process.cwd(), '/structure/client'));
@@ -32,8 +33,6 @@ module.exports = class CorgiHutBot extends Client {
         this.rateLimiter = new RateLimiter(this);
         this.eventHooker = new EventHooker(this);
         this.resolver = new Resolver(this);
-
-        //Reddit utility
         this.reddit = new Reddit(this, options.reddit);
 
         this.ready = false;
@@ -53,9 +52,9 @@ module.exports = class CorgiHutBot extends Client {
     async build() {
 
         this.logger.log('Building client');
-        this.registry.loadComponents('commands');
-        this.registry.loadComponents('recurring');
-        this.registry.loadComponents('listeners');
+        await this.registry.loadComponents('commands');
+        await this.registry.loadComponents('recurring');
+        await this.registry.loadComponents('listeners');
         //this.registry.loadCommands();
         //this.registry.loadListeners();
         this.eventHooker.init();
@@ -68,6 +67,16 @@ module.exports = class CorgiHutBot extends Client {
 
     get prefix() {
         return this._config.prefix;
+    }
+
+    get guild() {
+        return this.guilds.cache.get(this.settings.guild);
+    }
+
+    resolveChannel(channel) {
+
+        return this.resolver.resolveChannel(channel, true, this.guild);
+
     }
 
 };
