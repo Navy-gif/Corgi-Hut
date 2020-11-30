@@ -30,10 +30,10 @@ module.exports = class Registry {
 
     }
 
-    loadCommands() {
+    loadComponents(folderName) {
 
-        this.client.logger.log('Loading commands');
-        const commandsPath = path.join(this.path, 'commands');
+        this.client.logger.log(`Loading ${folderName}`);
+        const commandsPath = path.join(this.path, folderName);
         const folder = fs.readdirSync(commandsPath);
 
         for (const file of folder) {
@@ -47,23 +47,5 @@ module.exports = class Registry {
         }
 
     }
-    
-    loadListeners() {
 
-        this.client.logger.log('Loading listeners');
-        const listenerPath = path.join(this.path, 'listeners');
-        const folder = fs.readdirSync(listenerPath);
-
-        for (const file of folder) {
-
-            this.client.logger.log(`\tLoading ${file}`);
-            const _path = path.join(listenerPath, file);
-            const _listener = require(_path);
-            const listener = new _listener(this.client);
-            this.listeners.set(listener.name, listener);
-
-        }
-
-    }
-
-}
+};
