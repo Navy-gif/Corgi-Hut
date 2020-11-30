@@ -59,7 +59,13 @@
         "id-blacklist": "warn",
         "id-match": "warn",
         "implicit-arrow-linebreak": "warn",
-        "indent": "warn",
+        "indent": [
+            "warn",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
         "init-declarations": "warn",
         "jsx-quotes": "warn",
         "key-spacing": "warn",
