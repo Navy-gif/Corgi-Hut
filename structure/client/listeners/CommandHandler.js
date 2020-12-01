@@ -65,7 +65,7 @@ module.exports = class CommandHandler extends Listener {
 
         try {
             const response = await command.run(message, args);
-            if (typeof response === 'string') await message.respond(response);
+            if (typeof response === 'string') await message.respond(response).catch(this.client.logger.debug.bind(this.client.logger));
         } catch (err) {
             this.client.logger.error(err.stack);
             message.channel.send('Command errored.');
