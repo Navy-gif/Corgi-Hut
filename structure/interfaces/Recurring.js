@@ -9,17 +9,24 @@ module.exports = class Recurring extends Component {
             type: 'recurring'
         });
 
-        this.interval = options.interval || 10; // Time in minutes
-        this.args = options.args || [];
+        //this.interval = options.interval || 10; // Time in minutes
+        //this.args = options.args || [];
 
-        this.recurrer = null;
+        this.recurrers = [];
 
     }
 
     init() {
-        if (this.recurrer) this.client.clearInterval(this.recurrer);
-        this.recurrer = this.client.setInterval(this.execute.bind(this), this.interval * 60 * 1000, this.args);
-        this.client.logger.log(`${this.resolve} running every ${this.interval} minutes`);
+        if (this.recurrers.length) {
+            this.recurrers.forEach(rec => this.client.clearInterval(rec));
+            this.recurrers = [];
+        }
+        if (!this.client.settings.recurring) return;
+        const tasks = Object.entries(this.client.settings.recurring);
+        for (const [name, params] of tasks) {
+            params.name = name;
+            this.recurrers.push(this.client.setInterval(this.execute.bind(this), params.interval * 1000, params));
+        }
     }
 
     execute() {

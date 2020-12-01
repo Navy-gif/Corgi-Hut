@@ -1,31 +1,24 @@
 const { Recurring } = require('../../interfaces');
 const offset = 10 * 60 * 60 * 1000;
 
-module.exports = class DogPosts extends Recurring {
+module.exports = class Posts extends Recurring {
 
     constructor(client) {
 
         super(client, {
-            name: 'dogPosts',
-            interval: 10
+            name: 'posts'
         });
-
-        this.channel = null;
 
     }
 
-    async execute() {
+    async execute(params) {
 
-        if (!this.client.settings[this.name].channel) return;
-        if (!this.channel) this.channel = await this.client.resolveChannel(this.client.settings[this.name].channel);
+        const channel = await this.client.resolveChannel(params.channel);
 
-        this.client.logger.debug('Attempting to send dog post');
-        const { sources } = this.client.settings[this.name];
+        const { sources } = params;
         const { reddit } = this.client;
         const sub = sources[Math.floor(Math.random() * (sources.length - 1))];
         let result = null;
-        //console.log(sub)
-        //console.log(this.channel)
 
         try {
             let count = 0;
@@ -41,10 +34,10 @@ module.exports = class DogPosts extends Recurring {
             return;
         }
 
-        //console.log(result)
+        if (result.length === 0) return;
 
         const em = {
-            title: result.title,
+            title: result.title.substring(0, 256),
             color: 16756735,
             url: `https://reddit.com${result.permalink}`,
             footer: {
@@ -71,13 +64,13 @@ module.exports = class DogPosts extends Recurring {
         //console.log(em)
         const send = { embed: em };
         if (['youtube.com', 'gfycat.com'].includes(result.domain)) {
-            this.channel.send(result.url);
+            channel.send(result.url);
             return;
         }
 
-        const missing = this.channel.permissionsFor(this.client.guild.me).missing(['SEND_MESSAGES', 'EMBED_LINKS']);
+        const missing = channel.permissionsFor(this.client.guild.me).missing(['SEND_MESSAGES', 'EMBED_LINKS']);
         if (missing.length) return this.client.logger.debug(`Missing perms to send dog post: ${missing}`);
-        this.channel.send(send);
+        channel.send(send);
 
     }
 
