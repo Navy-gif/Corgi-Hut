@@ -25,11 +25,11 @@ module.exports = class CorgiHutBot extends Client {
          * @private
          */
         this._config = options.bot;
-        this.settings = require('./../../settings.json');
+        this.settings = null; //{ guild: '207880433432657920', recurring: {} }//require('../../settings.json');
 
         this.logger = new Logger(this, options.logging);
         this.registry = new Registry(this, path.join(process.cwd(), '/structure/client'));
-        this.storage = new Storage(this);
+        this.storage = new Storage(this, options.storage);
         this.rateLimiter = new RateLimiter(this);
         this.eventHooker = new EventHooker(this);
         this.resolver = new Resolver(this);
@@ -37,7 +37,7 @@ module.exports = class CorgiHutBot extends Client {
 
         this.ready = false;
 
-        this.on('ready', () => {
+        this.on('ready', async () => {
             const guilds = this.guilds.cache.size;
             this.logger.log(`Successfully logged in as ${this.user.tag} with ${guilds} guild${guilds > 1 ? 's' : ''}`);
             this.ready = true;
@@ -52,17 +52,26 @@ module.exports = class CorgiHutBot extends Client {
     async build() {
 
         this.logger.log('Building client');
+        
+        await this.storage.init();
+        this.settings = await this.storage.findOne('settings', { guild: this._config.guild });
+        if (!this.settings) this.settings = { guild: this._config.guild };
+
         await this.registry.loadComponents('commands');
         await this.registry.loadComponents('recurring');
         await this.registry.loadComponents('listeners');
         //this.registry.loadCommands();
         //this.registry.loadListeners();
         this.eventHooker.init();
-        // await this.storage.init();
+
         this.emit('built');
         await super.login(this._config.token);
         //await this.reddit.init();
 
+    }
+
+    async updateSettings() {
+        await this.storage.updateOne('settings', { guild: this.guild.id }, this.settings);
     }
 
     get prefix() {
@@ -70,13 +79,17 @@ module.exports = class CorgiHutBot extends Client {
     }
 
     get guild() {
-        return this.guilds.cache.get(this.settings.guild);
+        return this.guilds.cache.get(this._config.guild);
     }
 
     resolveChannel(channel) {
 
         return this.resolver.resolveChannel(channel, true, this.guild);
 
+    }
+
+    get resolveTime() {
+        return this.resolver.resolveTime;
     }
 
 };

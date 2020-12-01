@@ -1,11 +1,13 @@
-const fs = require('fs');
-const path = require('path')
+const { MongoClient } = require('mongodb');
 
 module.exports = class Storage {
 
-    constructor(client) {
+    constructor(client, options) {
 
-        this.client = client;
+        this._client = client;
+        this.host = options.host;
+        this.database = options.database;
+        this.connection = null;
         this.db = null;
 
         this.ready = false;
@@ -14,16 +16,91 @@ module.exports = class Storage {
 
     async init() {
         try {
-            this.client.logger.log('Storage initializing.');
-            
-            if (!fs.existsSync('./storage')) fs.mkdirSync('./storage');
-            const files = fs.readdirSync('./storage');
-
+            this.connection = await MongoClient.connect(this.host + this.database, { useUnifiedTopology: true });
+            this.db = await this.connection.db(this.database);
             this.ready = true;
-            this.client.logger.log('Storage handler done.');
         } catch (error) {
-            this.client.logger.error(`Failed to initialize database:\n${error.stack}`);
+            this.client.logger.error('Failed to initialize database:');
+            this.client.logger.error(error);
         }
+    }
+
+    push(collection, filter, data, upsert = true) {
+
+        return new Promise((resolve, reject) => {
+
+            if (!this.ready) reject(new Promise('Mongo not ready'));
+            this[collection].updateOne(filter, { $push: { data } }, { upsert }, (error, result) => {
+                if (error) reject(error);
+                resolve(result);
+            });
+
+        });
+
+    }
+
+    findOne(collection, filter) {
+
+        return new Promise((resolve, reject) => {
+
+            if (!this.ready) reject(new Promise('Mongo not ready'));
+            this[collection].findOne(filter, (error, item) => {
+
+                if (error) reject(error);
+                resolve(item);
+
+            });
+
+        });
+
+    }
+
+    updateOne(collection, filter, data, upsert = true) {
+
+        return new Promise((resolve, reject) => {
+
+            if (!this.ready) reject(new Promise('Mongo not ready'));
+            this[collection].updateOne(filter, { $set: data }, { upsert }, async (error, result) => {
+                
+                if (error) return reject(error);
+                resolve(result);
+
+            });
+
+        });
+
+    }
+
+    fetchGuildData(guild) {
+
+        return new Promise((resolve, reject) => {
+
+            if (!this.ready) reject(new Promise('Mongo not ready'));
+            this.guilds.findOne({ id: guild }, async (error, item) => {
+
+                if (error) return reject(error);
+                return resolve(item);
+
+            });
+
+        });
+
+    }
+
+    get users() {
+        return this.db.collection('users');
+    }
+
+    get guilds() {
+        return this.db.collection('guilds');
+    }
+
+    get client() {
+        return this.db.collection('client');
+    }
+
+    get settings() {
+        return this.db.collection('settings');
     }
 
 };
