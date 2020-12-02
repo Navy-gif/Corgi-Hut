@@ -14,6 +14,10 @@ module.exports = class Posts extends Recurring {
     async execute(params) {
 
         const channel = await this.client.resolveChannel(params.channel);
+        if (!channel) {
+            this.client.logger.debug(`Missing channel in recurring post\n${params}`);
+            return;
+        }
 
         const { sources } = params;
         const { reddit } = this.client;
@@ -30,7 +34,7 @@ module.exports = class Posts extends Recurring {
                 //console.log(count);
             } while (!['image', 'rich:video', 'hosted:video'].includes(result.post_hint) && count < 5);
         } catch (err) {
-            this.channel.send(`Errored:\n${err}`);
+            this.client.logger.error(`Errored:\n${err}`);
             return;
         }
 
