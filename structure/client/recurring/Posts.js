@@ -1,5 +1,6 @@
 const { Recurring } = require('../../interfaces');
 const offset = 10 * 60 * 60 * 1000;
+const { inspect } = require('util');
 
 module.exports = class Posts extends Recurring {
 
@@ -15,7 +16,7 @@ module.exports = class Posts extends Recurring {
 
         const channel = await this.client.resolveChannel(params.channel);
         if (!channel) {
-            this.client.logger.debug(`Missing channel in recurring post\n${params}`);
+            this.client.logger.debug(`Missing channel in recurring post\n${inspect(params)}`);
             return;
         }
 
@@ -31,14 +32,14 @@ module.exports = class Posts extends Recurring {
                 count++;
                 result = await reddit.randomPost(sub);
                 if (result.crosspost_parent_list) [result] = result.crosspost_parent_list;
-                //console.log(count);
-            } while (!['image', 'rich:video', 'hosted:video'].includes(result.post_hint) && count < 5);
+                console.log(result.over_18 && !channel.nsfw, sub, count);
+            } while (result.over_18 && !channel.nsfw && count < 5 || !['image', 'rich:video'].includes(result.post_hint) && count < 5); // Maybe download and reupload if hosted:video ?
         } catch (err) {
             this.client.logger.error(`Errored:\n${err}`);
             return;
         }
 
-        if (result.length === 0) return;
+        if (result.length === 0 || result.over_18 && !channel.nsfw) return;
 
         const em = {
             title: result.title.substring(0, 256),

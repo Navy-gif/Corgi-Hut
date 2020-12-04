@@ -65,7 +65,7 @@ module.exports = class CorgiHutBot extends Client {
         this.eventHooker.init();
 
         this.emit('built');
-        await super.login(this._config.token);
+        await super.login(this._config.token).catch(this.logger.error.bind(this.logger));
         //await this.reddit.init();
 
     }
