@@ -14,7 +14,7 @@ module.exports = class Posts extends Recurring {
 
     async execute(params) {
 
-        const channel = await this.client.resolveChannel(params.channel);
+        const channel = await this.client.channels.fetch(params.channel);
         if (!channel) {
             this.client.logger.debug(`Missing channel in recurring post\n${inspect(params)}`);
             return;
