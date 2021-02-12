@@ -12,7 +12,7 @@ module.exports = class Command extends Component {
 
         this.aliases = options.aliases || [];
         this.description = options.description || `Command ${this.name} is missing description`;
-        this.usage = options.usage || `${this.client.prefix}${this.name}`;
+        this.usage = `${this.client.prefix}${this.name} ${options.usage || ''}`;
         this.showUsage = options.showUsage || false;
         this.display = this.name[0].toUpperCase() + this.name.substring(1);
         this.guildOnly = options.guildOnly || false;

@@ -32,6 +32,7 @@ module.exports = class Posts extends Recurring {
                 count++;
                 result = await reddit.randomPost(sub);
                 if (result.crosspost_parent_list) [result] = result.crosspost_parent_list;
+                // eslint-disable-next-line no-console
                 console.log(result.over_18 && !channel.nsfw, sub, count);
             } while (result.over_18 && !channel.nsfw && count < 5 || !['image', 'rich:video'].includes(result.post_hint) && count < 5); // Maybe download and reupload if hosted:video ?
         } catch (err) {

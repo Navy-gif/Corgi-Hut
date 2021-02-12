@@ -6,7 +6,9 @@ module.exports = class Recurring extends Command {
 
         super(client, {
             name: 'recurring',
-            aliases: []
+            aliases: [],
+            permissions: ['ADMINISTRATOR'],
+            usage: '[method] [name] [#channel] [interval] [source..]'
         });
 
     }
@@ -40,6 +42,17 @@ module.exports = class Recurring extends Command {
                 interval
             };
 
+            await this.client.updateSettings();
+            await this.client.registry.recurring.get('recurring:posts').init();
+            return `OK`;
+
+        } else if (['delete', 'remove'].includes(method)) {
+            
+            if (args.length < 1) return `Need name of recurrer to remove.`;
+            const name = args.shift().toLowerCase();
+            if (!settings.recurring[name]) return `No such recurrer exists.`;
+
+            delete settings.recurring[name];
             await this.client.updateSettings();
             await this.client.registry.recurring.get('recurring:posts').init();
             return `OK`;

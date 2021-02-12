@@ -9,7 +9,7 @@ module.exports = class Recurring extends Component {
             type: 'recurring'
         });
 
-        //this.interval = options.interval || 10; // Time in minutes
+        //this.interval = options.interval || 10; // Time in seconds
         //this.args = options.args || [];
 
         this.recurrers = [];
