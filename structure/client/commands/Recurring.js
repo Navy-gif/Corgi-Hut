@@ -42,6 +42,7 @@ module.exports = class Recurring extends Command {
                 interval
             };
 
+            this.client.logger.log(`Adding new recurrer in ${message.guild.id}: ${name}, every ${interval/60} minutes`);
             await this.client.updateSettings();
             await this.client.registry.recurring.get('recurring:posts').init();
             return `OK`;
@@ -52,6 +53,7 @@ module.exports = class Recurring extends Command {
             const name = args.shift().toLowerCase();
             if (!settings.recurring[name]) return `No such recurrer exists.`;
 
+            this.client.logger.log(`Removing recurrer in ${message.guild.id}: ${name}`);
             delete settings.recurring[name];
             await this.client.updateSettings();
             await this.client.registry.recurring.get('recurring:posts').init();
